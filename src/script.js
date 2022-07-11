@@ -35,8 +35,42 @@ const camera = new THREE.OrthographicCamera(
     cameraWidth / -2,0 ,1000
 )
 camera.position.set(200,200,200)
-camera.lookAt(0,10,0)
+camera.lookAt(0,15,0)
 scene.add(camera)
+
+
+/**
+ * TEXTURE
+ */
+
+ const getCarFrontTexture = () => {
+    const canvas = document.createElement("canvas")
+    canvas.width = 64;
+    canvas.height = 32;
+    const context = canvas.getContext('2d');
+
+    context.fillStyle = "#ffffff"
+    context.fillRect(0,0,64,32)
+    context.fillStyle = "#666666"
+    context.fillRect(8,8,48,24)
+
+    return new THREE.CanvasTexture(canvas)
+}
+
+const getCarSideTexture = () => {
+    const canvas = document.createElement("canvas")
+    canvas.width= 128
+    canvas.height= 32
+    const context = canvas.getContext('2d')
+
+    context.fillStyle = "#ffffff"
+    context.fillRect(0,0,128,32)
+    context.fillStyle = "#666666"
+    context.fillRect(10,8,38,24)
+    context.fillRect(58,8,60,24)
+
+    return new THREE.CanvasTexture(canvas)
+}
 
 /**
  * GEOMETRY
@@ -68,18 +102,39 @@ const createCar = ()=> {
     body.position.y = 12
     car.add(body)
 
+    // Mapping Texture on the Cabin.
+
+    const carFrontTexture = getCarFrontTexture()
+    const leftSideTexture = getCarSideTexture()
+    leftSideTexture.center = new THREE.Vector2(0.5,0.5)
+    leftSideTexture.rotation = Math.PI
+    leftSideTexture.flipY = false
+    const rightSideTexture = getCarSideTexture()
+
+
     const cabin = new THREE.Mesh(
-        new THREE.BoxBufferGeometry(30,50,28),
-        new THREE.MeshLambertMaterial({ color: 0xffffff})
+        new THREE.BoxBufferGeometry(30,30,28),[
+        new THREE.MeshLambertMaterial({ map: carFrontTexture}),
+        new THREE.MeshLambertMaterial({ map: carFrontTexture}),
+        new THREE.MeshLambertMaterial({ color: 0xffffff}),
+        new THREE.MeshLambertMaterial({ color: 0xffffff}),
+        new THREE.MeshLambertMaterial({ map: rightSideTexture}),
+        new THREE.MeshLambertMaterial({ map: leftSideTexture})
+    ]
     )
-    cabin.position.y =24
+    cabin.position.y =35
     cabin.position.x= -8
     car.add(cabin)
     return car
 
 }
 const maruti = createCar()
+maruti.rotation.y = 3
 scene.add(maruti)
+
+
+
+
 
 /**
  * RENDERER
