@@ -1,15 +1,17 @@
 import './style.css';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import gsap from 'gsap';
 
 /**
  * SCENE
  */
 const scene = new THREE.Scene();
 
+const axesHelper = new THREE.AxesHelper( 90 );
+scene.add( axesHelper );
 
-
-/**
+/*
  * LIGHT
  */
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
@@ -18,7 +20,6 @@ scene.add(ambientLight)
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
 directionalLight.position.set(200, 500, 300)
 scene.add(directionalLight)
-
 
 
 /**
@@ -36,16 +37,14 @@ const aspectRatio = window.innerWidth/ window.innerHeight
 //     cameraWidth / -2,0 ,1000
 // )
 // camera.position.set(200,200,200)
-
 const camera = new THREE.PerspectiveCamera(45, aspectRatio, 1, 1000)
-camera.lookAt(0,15,0)
+camera.position.set(250,250,250);
 scene.add(camera)
 
 
 /**
  * TEXTURE
  */
-
  const getCarFrontTexture = () => {
     const canvas = document.createElement("canvas")
     canvas.width = 64;
@@ -79,10 +78,10 @@ const getCarSideTexture = () => {
  * GEOMETRY
  */
  const createWheels = () =>{
-    const geometry = new THREE.CylinderBufferGeometry(5,5,80,32)
+    const geometry = new THREE.CylinderBufferGeometry(10,10,45,32)
     const material = new THREE.MeshLambertMaterial({ color: 0x333333 })
     const wheel = new THREE.Mesh(geometry, material)
-    wheel.rotation.x = 45
+    wheel.rotateX(Math.PI * 0.5)    // For rotating along any axis
     return wheel;
 }
 
@@ -105,6 +104,39 @@ const createCar = ()=> {
     )
     body.position.y = 12
     car.add(body)
+        // Car Head Lights
+    const headLightLeft = new THREE.Mesh(
+        new THREE.CylinderBufferGeometry(4,4,20,32),
+        new THREE.MeshLambertMaterial({color: '#f7ff29'})
+    )
+    headLightLeft.rotateZ(Math.PI * 0.5)
+    headLightLeft.position.set(31,15,12)
+    car.add(headLightLeft)
+
+    const headLightRight = new THREE.Mesh(
+        new THREE.CylinderBufferGeometry(4,4,20,32),
+        new THREE.MeshLambertMaterial({color: '#f7ff29'})
+    )
+    headLightRight.rotateZ(Math.PI * 0.5)
+    headLightRight.position.set(31,15,-12)
+    car.add(headLightRight)
+
+    // Car Tail Lights
+    const tailLightLeft = new THREE.Mesh(
+        new THREE.BoxBufferGeometry(4,9,10),
+        new THREE.MeshLambertMaterial({color: '#fa2020'})
+    )
+    tailLightLeft.rotateZ(Math.PI * 0.5)
+    tailLightLeft.position.set(-36,15,12)
+    car.add(tailLightLeft)
+
+    const tailLightRight = new THREE.Mesh(
+        new THREE.CylinderBufferGeometry(4,4,20,32),
+        new THREE.MeshLambertMaterial({color: '#fa2020'})
+    )
+    tailLightRight.rotateZ(Math.PI * 0.5)
+    tailLightRight.position.set(-31,15,-12)
+    car.add(tailLightRight)
 
     // Mapping Texture on the Cabin.
 
@@ -133,8 +165,11 @@ const createCar = ()=> {
 
 }
 const maruti = createCar()
-maruti.rotation.y = 3
 scene.add(maruti)
+
+//GSAP library
+// gsap.to(maruti.position, {duration: 3, delay: 1, x: 200})
+// gsap.to(maruti.position, {duration: 4, delay: 5, x: 0})
 
 
 
@@ -148,11 +183,13 @@ document.body.appendChild(renderer.domElement);
 /**
  * CONTROLS
  */
- const control = new OrbitControls(camera, renderer.domElement)
- control.enableDamping = true
+const control = new OrbitControls(camera, renderer.domElement)
+control.enableDamping = true
+control.maxPolarAngle = Math.PI /2.5
+control.minDistance = 100
+control.update()
 
- camera.position.set(200,200,200);
- control.update()
+
 /**
  * ANIMATION
  */
